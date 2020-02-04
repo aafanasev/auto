@@ -34,7 +34,7 @@ class AutoGradlePluginProcessor : AbstractProcessor() {
 
     private fun generateFiles() {
         plugins.forEach { (id, cls) ->
-            val resourceName = "gradle-plugins/$id.properties"
+            val resourceName = "META-INF/gradle-plugins/$id.properties"
             val outputFile = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", resourceName)
 
             outputFile.openWriter().use {
@@ -54,7 +54,9 @@ class AutoGradlePluginProcessor : AbstractProcessor() {
                     it as TypeElement
                 }
                 .forEach {
-                    plugins[it.getAnnotation(AutoGradlePlugin::class.java).pluginId] = it.javaClass.name
+                    val pluginId = it.getAnnotation(AutoGradlePlugin::class.java).pluginId
+                    val implementationClass = processingEnv.elementUtils.getBinaryName(it).toString()
+                    plugins[pluginId] = implementationClass
                 }
     }
 }
